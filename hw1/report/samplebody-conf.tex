@@ -1,6 +1,7 @@
 \section{Introduction}
 
-Linear regression is used to predict the value of an outcome variable (response) based on one or more input variables (predictor). The goal of linear regression model is to establish a linear relationship between predictors and responses. In this report, 
+In this report, we build a linear regression model for the given dataset to help a banker use the log returns of Toyota and Ford to interpret the log returns of GM. First we evaluate the statistical significance for 
+Linear regression is used to predict the value of an outcome variable (response) based on one or more input variables (predictor). The goal of linear regression model is to establish a linear relationship between predictors and responses. 
 
 \section{Problem Formulation}
 
@@ -21,7 +22,7 @@ The OLS method minimizes the sum of squared residuals, and leads to a closed-for
 
 $$\hat{\beta} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{Y} = (\sum{\mathbf{x}_i\mathbf{x}_i^\top})^{-1} (\sum{\mathbf{x}_i} y_i) $$ 
 
-In addition, the OLS estimaor is also identical to the maximum likelihood estimator (MLE) under the normality assumption for the error terms \cite{Abril07} (i.e. if the errors are i.i.d normal distribution $\mathcal{N}(0, \sigma^2)$.) 
+In addition, the OLS estimaor is also identical to the maximum likelihood estimator (MLE) under the normality assumption for the error terms \cite{test} (i.e. if the errors are i.i.d normal distribution $\mathcal{N}(0, \sigma^2)$.) 
 
 % in the Bibliography section of your
 % article will occur throughout the text of your article.
@@ -57,31 +58,61 @@ In addition, the OLS estimaor is also identical to the maximum likelihood estima
 
 % \subsection{Figures}
 
+\begin{figure}
+\includegraphics[scale=0.3]{surface}
+\caption{Surface of GM. vs. Toyota Motor Corp. and Ford Motor Corp.}
+\label{img:surface}
+\end{figure}
+
+\begin{table}[]
+\centering
+\caption{Summary of raw data}
+\label{tab:rawdata}
+\begin{tabular}{l|lll}
+        & \textbf{Toyota Motor Corp.} & \textbf{Ford Motor Corp.} & \textbf{GM.}        \\ \hline
+Min.    & -0.1132272                  & -9.481e-02                & \textit{-0.1061545} \\
+1st Qu. & -0.0084958                  & -9.368e-03                & \textit{-0.0119514} \\
+Median  & 0.0005180                   & -2.082e-04                & \textit{0.0004089}  \\
+Mean    & 0.0008693                   & 7.535e-05                 & \textit{0.0001701}  \\
+3rd Qu. & 0.0105164                   & 1.122e-02                 & 0.0116914           \\
+Max.    & 0.1049635                   & 7.429e-02                 & 0.0744415          
+\end{tabular}
+\end{table}
+
+\begin{table*}[t]
+\centering
+\caption{Summary of linear regression}
+\label{tab:lr}
+\begin{tabular}{lllll}
+\hline
+\multicolumn{5}{l}{\textbf{Residuals}} \\
+\textit{Min} & \textit{1Q} & \textit{Median} & \textit{3Q} & \textit{Max} \\
+-0.062848 & -0.009649 & -0.000405 & 0.008977 & 0.057515 \\ \hline
+\multicolumn{5}{l}{\textbf{Coefficients}} \\
+ & \textit{Estimate} & \textit{Std. Error} & \textit{t value} & \textit{Pr(\textgreater|t|)} \\
+\textit{(Intercept)} & 7.049e-05 & 5.914e-04 & 0.119 & 0.905 \\
+\textit{`Ford Motor Corp.`} & 6.145e-01 & 3.132e-02 & 19.619 & \textless2e-16 \\
+\textit{`Toyota Motor Corp.`} & 6.132e-02 & 3.784e-02 & 1.621 & 0.106 \\ \hline
+\textbf{Residual standard error} & \multicolumn{4}{l}{0.01572 on 706 degrees of freedom} \\
+\textbf{Multiple R-squared} & 0.3775 & \textbf{Adjusted R-squared} & \multicolumn{2}{l}{0.3757} \\
+\textbf{F-statistic} & 214.1 on 2 and 706 DF & \textbf{p-value} & \multicolumn{2}{l}{\textless 2.2e-16} \\ \hline
+\end{tabular}
+\end{table*}
+
 \section{Experiments}
 
-In experiments, we use the dataset provided on class that comes with R. Before begin building the linear regression model, we start to take a look at the raw dataset first to analyze and understand the variables intuitively. 
+In experiments, we use the dataset provided on class that comes with R. Before building the linear regression model, we start to take a look at the raw dataset first to analyze and understand the variables intuitively. First of all, Surface plot can help visualize the linear relationships between the response variables and predictor variables. Ideally, in linear regression, their relationship can be model as a plane in this space. As shown in Fig. \ref{img:surface}, $x$-axis and $y$-axis mean the log returns of Toyota Motor Corp. and Ford Motor Corp. respectively, $z$-axis is the the log returns of GM. Besides graphical analysis, we can also study their statistical property. As reported in Table~\ref{tab:rawdata}, the log returns of GM. seems to be highly correlated with Toyota. 
 
+\subsection{Linear Regression Diagnostics}
 
+Before actually using linear regression model, we need to ensure it is statistically significant. Since a larger t-value indicates it is less likely that the coefficient is not equal to zero purely by chance and the corresponding p-value would be relatively low, which means the coefficients are significant. As reported in Table~\ref{tab:lr}, the p-value of Ford Motor Corp. is significantly lower than 0.05, we can safely reject the null hypothesis that coefficient $\beta_2$ of the predictor is zero. However, the p-value of Toyota Motor Corp. is slightly larger than 0.05, which means the log returns of Toyota Motor Corp. is not statistically significant to the log returns of GM. As to R-Squared and Adj R-Squared value, they are kind of lower than empirical value 0.70 (actually R-Squared is not a good criterion, since it always increase with the model size).
 
-\begin{figure}
-\includegraphics[height=3in, width=3in]{qqplot}
-\caption{Normal Q-Q Plot}
-\end{figure}
+In additin, we also check the diagnostic plots for further analysis of this regression model, in particular, they show residuals in four different ways: \texttt{1. Normal Q-Q plot}: Fig. \ref{img:qqplot} shows residuals follow a straight line well when residuals lie between -2 to 2, within this range, the residuals perfectly matched normal distribution. \texttt{2. Residuals vs Fitted plot}: 
+Fig. \ref{img:rfplot} shows there is no obvious non-linear pattern in residuals, which is a good indication to our linear regression model. \texttt{3. Residuals vs Leverage plot}: Fig. \ref{img:rlplot} is the typical look when there is no influential case, or cases. we can barely see Cook's distance lines (a red dashed line) because all cases are well inside of the Cook's distance lines. \texttt{4. Scale vs Location plot}: as shown in Fig. \ref{img:slplot}, we can tell there is a parabola (the red line) clearly. Residuals are spread inequally along the ranges of predictors, it begins to spread wider along the x-axis as it passes to two end. 
 
-\begin{figure}
-\includegraphics[height=3in, width=3in]{residuals-fitted}
-\caption{Residuals-Fitted Plot}
-\end{figure}
+\subsection{Model Selection}
 
-\begin{figure}
-\includegraphics[height=3in, width=3in]{residuals-leverage}
-\caption{Residuals-Leverage Plot}
-\end{figure}
-
-\begin{figure}
-\includegraphics[height=3in, width=3in]{scale-location}
-\caption{Scale-Location Plot}
-\end{figure}
+Generally speaking, the linear regression model we built is fairly good in terms of the results of diagnostics. But we can still try to improve it by model selection. As we mentioned above, we can remove the predictor of Toyota Motor Corp. from the model according to their p-values. The rebuilt model shows a minor improvement on BIC and AIC criterion and other statistics, however, on the whole, their performance on prediction or interpolation are essentially the same. We can draw the conclusion that our first linear regression model can be utilized to model the log returns of these three motor companies, and the model can gain a small benefit by removing the predictor of Toyota Motor Corps, but it is not required. 
 
 % \begin{figure}
 % \includegraphics[height=1in, width=1in]{fly}
@@ -136,14 +167,32 @@ In experiments, we use the dataset provided on class that comes with R. Before b
 %   which contradicts our assumption that $l\neq 0$.
 % \end{proof}
 
+\begin{figure}[h!]
+\includegraphics[height=2in, width=2in]{qqplot}
+\caption{Normal Q-Q Plot}
+\label{img:qqplot}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[height=2in, width=2in]{residuals-fitted}
+\caption{Residuals-Fitted Plot}
+\label{img:rfplot}
+\end{figure}
+
 \section{Conclusions}
-This paragraph will end the body of this sample document.
-Remember that you might still have Acknowledgments or
-Appendices; brief samples of these
-follow.  There is still the Bibliography to deal with; and
-we will make a disclaimer about that here: with the exception
-of the reference to the \LaTeX\ book, the citations in
-this paper are to articles which have nothing to
-do with the present subject and are used as
-examples only.
+In this report, we build a linear regression model for three motor companies and briefly analyze the diagnostics of the model. In the basis of the results of the experiments, we reach the conclusion that it is a good model for intercepting the log returns of GM. by using the log returns of Toyota and Ford. We can also remove the predictor of Toyota to improve our model a little bit. 
 %\end{document}  % This is where a 'short' article might terminate
+
+
+
+\begin{figure}[h!]
+\includegraphics[height=2in, width=2in]{residuals-leverage}
+\caption{Residuals-Leverage Plot}
+\label{img:rlplot}
+\end{figure}
+
+\begin{figure}[h!]
+\includegraphics[height=2in, width=2in]{scale-location}
+\caption{Scale-Location Plot}
+\label{img:slplot}
+\end{figure}

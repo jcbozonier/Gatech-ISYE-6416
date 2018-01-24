@@ -1,6 +1,7 @@
 \documentclass[sigconf]{acmart}
 
 \usepackage{booktabs} % For formal tables
+% \usepackage{tabularx} 
 
 \acmArticle{4}
 \acmPrice{15.00}
@@ -21,13 +22,13 @@
 For this analysis, the aim of linear regression is to model the relationship between three auto manufacturers: Toyata Motor Corp., Ford Motor Corp., and GM. Treat the log returns of GM as response and log returns of Toyota and Ford as predictors. We fit a linear regression model in R and perform necessary model diagnostics. By analyzing the given dataset, we draw the conclusion on whether linear regression is a useful tool for this dataset and find out which predicotrs are playing important roles in this relationship.
 \end{abstract}
 
-\keywords{linear regression, model selection}
+\keywords{linear regression, model selection, log returns}
 
 \maketitle
 \newcommand{\norm}[1]{\left\lVert#1\right\rVert}
 \input{samplebody-conf}
 
-\bibliographystyle{ACM-Reference-Format}
-\bibliography{sample-bibliography}
+% \bibliographystyle{ieeetr}
+% \bibliography{refs}
 
 \end{document}
