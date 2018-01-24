@@ -1,7 +1,15 @@
 \documentclass[sigconf]{acmart}
-
+\usepackage{listings}
 \usepackage{booktabs} % For formal tables
-% \usepackage{tabularx} 
+
+\lstset{language=R,
+    basicstyle=\small\ttfamily,
+    stringstyle=\color{green},
+    morekeywords={TRUE,FALSE},
+    deletekeywords={data,frame,length,as,character},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green},
+}
 
 \acmArticle{4}
 \acmPrice{15.00}

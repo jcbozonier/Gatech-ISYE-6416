@@ -24,40 +24,6 @@ $$\hat{\beta} = (\mathbf{X}^\top \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{Y} = (
 
 In addition, the OLS estimaor is also identical to the maximum likelihood estimator (MLE) under the normality assumption for the error terms \cite{test} (i.e. if the errors are i.i.d normal distribution $\mathcal{N}(0, \sigma^2)$.) 
 
-% in the Bibliography section of your
-% article will occur throughout the text of your article.
-% You should use BibTeX to automatically produce this bibliography;
-% you simply need to insert one of several citation commands with
-% a key of the item cited in the proper location in
-% the \texttt{.tex} file~\cite{Lamport:LaTeX}.
-% The key is a short reference you invent to uniquely
-% identify each work; in this sample document, the key is
-% the first author's surname and a
-% word from the title.  This identifying key is included
-% with each item in the \texttt{.bib} file for your article.
-
-% Immediately following this sentence is the point at which
-% Table~\ref{tab:freq} is included in the input file; compare the
-% placement of the table here with the table in the printed
-% output of this document.
-
-% \begin{table}
-%   \caption{Frequency of Special Characters}
-%   \label{tab:freq}
-%   \begin{tabular}{ccl}
-%     \toprule
-%     Non-English or Math&Frequency&Comments\\
-%     \midrule
-%     \O & 1 in 1,000& For Swedish names\\
-%     $\pi$ & 1 in 5& Common in math\\
-%     \$ & 4 in 5 & Used in business\\
-%     $\Psi^2_1$ & 1 in 40,000& Unexplained usage\\
-%   \bottomrule
-% \end{tabular}
-% \end{table}
-
-% \subsection{Figures}
-
 \begin{figure}
 \includegraphics[scale=0.3]{surface}
 \caption{Surface of GM. vs. Toyota Motor Corp. and Ford Motor Corp.}
@@ -114,58 +80,6 @@ Fig. \ref{img:rfplot} shows there is no obvious non-linear pattern in residuals,
 
 Generally speaking, the linear regression model we built is fairly good in terms of the results of diagnostics. But we can still try to improve it by model selection. As we mentioned above, we can remove the predictor of Toyota Motor Corp. from the model according to their p-values. The rebuilt model shows a minor improvement on BIC and AIC criterion and other statistics, however, on the whole, their performance on prediction or interpolation are essentially the same. We can draw the conclusion that our first linear regression model can be utilized to model the log returns of these three motor companies, and the model can gain a small benefit by removing the predictor of Toyota Motor Corps, but it is not required. 
 
-% \begin{figure}
-% \includegraphics[height=1in, width=1in]{fly}
-% \caption{A sample black and white graphic
-% that has been resized with the \texttt{includegraphics} command.}
-% \end{figure}
-
-% \begin{figure*}
-% \includegraphics{flies}
-% \caption{A sample black and white graphic
-% that needs to span two columns of text.}
-% \end{figure*}
-
-% \begin{figure}
-% \includegraphics[height=1in, width=1in]{rosette}
-% \caption{A sample black and white graphic that has
-% been resized with the \texttt{includegraphics} command.}
-% \end{figure}
-
-% Here is a theorem:
-% \begin{theorem}
-%   Let $f$ be continuous on $[a,b]$.  If $G$ is
-%   an antiderivative for $f$ on $[a,b]$, then
-%   \begin{displaymath}
-%     \int^b_af(t)\,dt = G(b) - G(a).
-%   \end{displaymath}
-% \end{theorem}
-
-% Here is a definition:
-% \begin{definition}
-%   If $z$ is irrational, then by $e^z$ we mean the
-%   unique number that has
-%   logarithm $z$:
-%   \begin{displaymath}
-%     \log e^z = z.
-%   \end{displaymath}
-% \end{definition}
-
-% \begin{proof}
-%   Suppose on the contrary there exists a real number $L$ such that
-%   \begin{displaymath}
-%     \lim_{x\rightarrow\infty} \frac{f(x)}{g(x)} = L.
-%   \end{displaymath}
-%   Then
-%   \begin{displaymath}
-%     l=\lim_{x\rightarrow c} f(x)
-%     = \lim_{x\rightarrow c}
-%     \left[ g{x} \cdot \frac{f(x)}{g(x)} \right ]
-%     = \lim_{x\rightarrow c} g(x) \cdot \lim_{x\rightarrow c}
-%     \frac{f(x)}{g(x)} = 0\cdot L = 0,
-%   \end{displaymath}
-%   which contradicts our assumption that $l\neq 0$.
-% \end{proof}
 
 \begin{figure}[h!]
 \includegraphics[height=2in, width=2in]{qqplot}
@@ -181,9 +95,6 @@ Generally speaking, the linear regression model we built is fairly good in terms
 
 \section{Conclusions}
 In this report, we build a linear regression model for three motor companies and briefly analyze the diagnostics of the model. In the basis of the results of the experiments, we reach the conclusion that it is a good model for intercepting the log returns of GM. by using the log returns of Toyota and Ford. We can also remove the predictor of Toyota to improve our model a little bit. 
-%\end{document}  % This is where a 'short' article might terminate
-
-
 
 \begin{figure}[h!]
 \includegraphics[height=2in, width=2in]{residuals-leverage}
@@ -196,3 +107,39 @@ In this report, we build a linear regression model for three motor companies and
 \caption{Scale-Location Plot}
 \label{img:slplot}
 \end{figure}
+
+\appendix
+%Appendix A
+\section{Codes for the Experiments}
+\begin{lstlisting}
+# Load data
+filePath <- "/Users/woodie/Documents/Courses/ISyE 6416 Computational Statistics (Spring 2018)/HW/ISYE-6416/hw1/w_logret_3automanu.csv"
+rawdata  <- read.csv(file=filePath, header=FALSE, sep=",")
+colnames(rawdata) <- c("Toyota Motor Corp.", "Ford Motor Corp.", "GM.")
+summary(rawdata)
+
+# Plot the 3d surface for response (GM.)
+plot_ly(x=rawdata$`Toyota Motor Corp.`,
+        y=rawdata$`Ford Motor Corp.`,
+        z=rawdata$`GM.`, type="mesh3d")
+
+# Linear regression
+lmResult1 <- lm(`GM.`~`Ford Motor Corp.`+`Toyota Motor Corp.`,
+                data=rawdata)                                  
+summary(lmResult1)
+
+# Model Selection
+lmResult2 <- lm(`GM.`~`Ford Motor Corp.`,
+                data=rawdata)              
+summary(lmResult2)
+
+lmResult3 <- lm(`GM.`~`Toyota Motor Corp.`,
+                data=rawdata)                
+summary(lmResult3)
+
+# Other diagnostics analysis
+AIC(lmResult1)
+BIC(lmResult1)
+\end{lstlisting}
+
+

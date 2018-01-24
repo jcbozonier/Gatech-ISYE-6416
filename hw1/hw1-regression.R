@@ -9,10 +9,12 @@ plot_ly(x=rawdata$`Toyota Motor Corp.`,
         y=rawdata$`Ford Motor Corp.`,
         z=rawdata$`GM.`, type="mesh3d")
 
+# Linear regression
 lmResult1 <- lm(`GM.` ~ `Ford Motor Corp.` + `Toyota Motor Corp.`, # regression formula
                 data=rawdata)                                      # data set
 summary(lmResult1)
 
+# Model Selection
 lmResult2 <- lm(`GM.` ~ `Ford Motor Corp.`, # regression formula
                 data=rawdata)               # data set
 summary(lmResult2)
@@ -21,5 +23,6 @@ lmResult3 <- lm(`GM.` ~ `Toyota Motor Corp.`, # regression formula
                 data=rawdata)                 # data set
 summary(lmResult3)
 
+# Other diagnostics analysis
 AIC(lmResult1)
 BIC(lmResult1)
