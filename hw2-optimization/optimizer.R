@@ -93,7 +93,6 @@ fixedPoint <- function(f, x0, alpha=1, tol=1e-02, n=1000){
 }
 
 secant <- function(f, x0, x1, tol=1e-03, n=1000){
-  
   k <- n # Initialize for iteration results
   
   for ( i in 1:n ) {

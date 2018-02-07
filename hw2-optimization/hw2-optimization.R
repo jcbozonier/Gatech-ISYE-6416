@@ -31,13 +31,11 @@ z <- matrix(apply(u, 1, function(v) loglikCauchy(v[1], v[2], data)),
 
 # ------------------------------------------------------------------------------
 # a. Graph the log-likelihood function as location and scale vary
-
 filled.contour(locations, scales, z, color.palette=heat.colors,
                xlab="Location", ylab="Log(scale)",
                main="Cauchy Log Likelihood")
 
 #    Graph the log-likelihood function as only location vary when scale=1.
-
 plot(locations, y, type="l", xlab="locations", ylab="log-likelihood", 
      main="Cauchy Log likelihood (scale=1.)")
 
@@ -139,14 +137,28 @@ plotMLE(f=derivLoglikNorm,
 # Oil shipment amounts are measured in billions of barrels (Bbbl).
 # 
 # The volume of oil shipped is measure of exposure to spill risk. Suppose we use the 
-# Possion process assumption given by N_i|b_i1, b_i2 ~ Possion(lambda_i) where 
+# Possion process assumption given by N_i | b_i1, b_i2 ~ Possion(lambda_i) where 
 # lambda_i = alpha_1 * b_i1 + alpha_2 * b_i2. The parameters of this model are alpha_1 and
 # alpha_2, which represent the rate of spill occurence per Bbbl oil shipped during import/
 # expert and domestic shipments, respectively. 
 
-# a. 
-#    
+# a. Derive the Newton-Raphson update for finding the MLEs of alpha_1 and alpha_2.
 
+# b. Derive the Fisher scoring update for finding the MLEs of alpha_1 and alpha_2.
+
+# c. Implement the Newton-Raphson and Fisher scoring methods for this problem, provide
+#    the MLEs, and compare the implementation case and performance of the two methods.
+
+# d. Estimate standard errors for the MLEs of alpha_1 and alpha_2.
+
+# e. Apply the method of steepest ascent. Use step-halving backtracking as necessary.
+
+# f. Apply quasi-Newton optimaztion with the Hessian approximation update given in (2.49).
+#    Compare performance with and without step halving.
+
+# g. Construct a graph resembling Figure 2.8 that compares the paths taken by methods
+#    used in (a)-(f). Choose the plotting region and starting point to best illustrate
+#    the features of the algorithms' performance.
 
 
 # References:
