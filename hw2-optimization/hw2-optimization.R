@@ -3,9 +3,11 @@
 # by Shixiang (Woody) Zhu
 
 # Configurations
-rootPath <- "/Users/woodie/Documents/Courses/ISyE 6416 Computational Statistics (Spring 2018)/HW/ISYE-6416/hw2"
-source(paste(rootPath, "optimizer.R", sep="/"))
-source(paste(rootPath, "plotter.R", sep="/"))
+rootPath <- "/Users/woodie/Documents/Courses/ISyE 6416 Computational Statistics (Spring 2018)/HW/ISYE-6416"
+dataPath <- paste(rootPath, "datasets/oilspills.dat", sep="/")
+source(paste(rootPath, "hw2-optimization/rootfinder.R", sep="/"))
+source(paste(rootPath, "hw2-optimization/optimizer.R", sep="/"))
+source(paste(rootPath, "hw2-optimization/plotter.R", sep="/"))
 
 # Problem 1:
 # ==============================================================================
@@ -141,27 +143,57 @@ plotMLE(f=derivLoglikNorm,
 # lambda_i = alpha_1 * b_i1 + alpha_2 * b_i2. The parameters of this model are alpha_1 and
 # alpha_2, which represent the rate of spill occurence per Bbbl oil shipped during import/
 # expert and domestic shipments, respectively. 
+spillsData <- read.table(dataPath, header=TRUE)
 
+# (Maximize) Objective function
+loglikPoisson <- function(alpha, data=spillsData) {
+  sum(dpois(data$spills, alpha[1]*data$importexport + alpha[2]*data$domestic, log=TRUE))
+}
+
+# ------------------------------------------------------------------------------
 # a. Derive the Newton-Raphson update for finding the MLEs of alpha_1 and alpha_2.
-
 # b. Derive the Fisher scoring update for finding the MLEs of alpha_1 and alpha_2.
-
 # c. Implement the Newton-Raphson and Fisher scoring methods for this problem, provide
 #    the MLEs, and compare the implementation case and performance of the two methods.
+resNewtonMLE <- newtonRaphsonMLE(loglikFunc=loglikPoisson, theta0=c(3, -1))
+resFisherMLE <- fisherScoringMLE(loglikFunc=loglikPoisson, data=spillsData, theta0=c(10, -1))
 
+plot2DMLE(loglikPoisson, resNewtonMLE, "Newton Method with Backtracking")
+plot2DMLE(loglikPoisson, resFisherMLE, "Newton Method without Backtracking")
+
+# ------------------------------------------------------------------------------
 # d. Estimate standard errors for the MLEs of alpha_1 and alpha_2.
+par(mfrow=c(1, 2))
+errorAlpha1 <- sqrt((as.vector(resNewtonMLE$iterations[,1]) - resNewtonMLE$rootApproximation[1])^2)
+errorAlpha2 <- sqrt((as.vector(resNewtonMLE$iterations[,2]) - resNewtonMLE$rootApproximation[2])^2)
+plot(errorAlpha1, type="l", xlab="Iteration", ylab="Standard Error for Alpha 1")
+plot(errorAlpha2, type="l", xlab="Iteration", ylab="Standard Error for Alpha 2")
 
+# ------------------------------------------------------------------------------
 # e. Apply the method of steepest ascent. Use step-halving backtracking as necessary.
+resAscentBackMLE <- steepestAscentMLE(loglikFunc=loglikPoisson, theta0=c(3, -1), alpha0=0.5)
+resAscentMLE     <- steepestAscentMLE(loglikFunc=loglikPoisson, theta0=c(3, -1), alpha0=0.05, backtracking=FALSE)
+plot2DMLE(loglikPoisson, resAscentBackMLE, "Ascent Method with Backtracking")
+plot2DMLE(loglikPoisson, resAscentMLE, "Ascent Method without Backtracking")
 
+# ------------------------------------------------------------------------------
 # f. Apply quasi-Newton optimaztion with the Hessian approximation update given in (2.49).
 #    Compare performance with and without step halving.
+resQuasiBackMLE <- quasiNewtonMLE(loglikFunc=loglikPoisson, theta0=c(5, -1), alpha0=0.2)
+resQuasiMLE     <- quasiNewtonMLE(loglikFunc=loglikPoisson, theta0=c(5, -1), alpha0=0.1, backtracking=FALSE)
+plot2DMLE(loglikPoisson, resQuasiBackMLE, "Quasi Newton Method with Backtracking")
+plot2DMLE(loglikPoisson, resQuasiMLE, "Quasi Newton Method without Backtracking")
 
+# ------------------------------------------------------------------------------
 # g. Construct a graph resembling Figure 2.8 that compares the paths taken by methods
 #    used in (a)-(f). Choose the plotting region and starting point to best illustrate
 #    the features of the algorithms' performance.
 
 
 # References:
+# - http://www.stat.colostate.edu/computationalstatistics/
 # - https://stats.stackexchange.com/questions/54885/how-do-i-plot-loglikelihood-functions-of-the-cauchy-distribution-in-r
 # - https://rpubs.com/aaronsc32/newton-raphson-method
 # - https://rpubs.com/aaronsc32/bisection-method-r
+# - https://stats.stackexchange.com/questions/176351/implement-fisher-scoring-for-linear-regression
+# - https://www.asc.ohio-state.edu/statistics/dmsl/quasi-newton.pdf

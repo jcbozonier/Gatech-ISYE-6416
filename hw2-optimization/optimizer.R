@@ -1,112 +1,141 @@
-# Newton Raphson Method
-newtonRaphson <- function(f, x0, tol=1e-3, n=1000) {
-  require(numDeriv) # Package for computing f'(x)
-  k <- n # Initialize for iteration results
+library(MASS)
+
+newtonRaphsonMLE <- function(loglikFunc, theta0, tol=1e-9, n=1000) {
+  # Start the clock!
+  ptm <- proc.time()
   
-  # Check the upper and lower bounds to see if approximations result in 0
-  if (f(x0) == 0.) {
-    res <- list("rootApproximation" = x0, "iterations" = c(x0))
-  }
+  require(numDeriv) # Package for computing f'(x) and f''(x)
+  k <- matrix(0, ncol=length(theta0)) # Initialize for iteration results
   
   for (i in 1:n) {
-    dx   <- genD(func=f, x=x0)$D[1] # First-order derivative f'(x0)
-    x1   <- x0 - (f(x0) / dx)       # Calculate next value x1
-    k[i] <- x1 # Store x1
-    # Once the difference between x0 and x1 becomes sufficiently small, output the results.
-    if (abs(x1 - x0) < tol) {
+    deriv  <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)] # First-order derivative f'(x0)
+    hess   <- hessian(func=loglikFunc, x=theta0)                  # Second-order derivative f'(x0)
+    theta1 <- theta0 - deriv %*% solve(hess)  # Calculate next value theta1 (`solve` for calculating inverse matrix)
+    k      <- rbind(k, theta1)                # Store theta1
+
+    # Once the difference between theta0 and theta1 becomes sufficiently small, output the results.
+    if (sum(abs(theta1 - theta0)) < tol) {
+      # Stop the clock
+      dt <- proc.time() - ptm
       rootApprox <- tail(k, n=1)
       res <- list("rootApproximation" = rootApprox, 
-                  "iterations" = k, 
+                  "iterations" = tail(k, n=i), 
+                  "time" = dt,
                   "methodName" = "Newton Raphson")
       return(res)
     }
-    # If Newton-Raphson has not yet reached convergence set x1 as x0 and continue
-    x0 <- x1
+    # If Newton-Raphson has not yet reached convergence set theta1 as theta0 and continue
+    theta0 <- theta1
   }
-  print("Exceeded allowed number of iterations")
-  rootApprox <- tail(k, n=1)
-  res <- list("rootApproximation" = rootApprox, "iterations" = k)
-  return(res)
-}
-
-# Bisection Method
-bisection <- function(f, a, b, tol=1e-3, n=1000) {
-  k <- n # Initialize for iteration results
-  
-  # If the signs of the function at the evaluated points, a and b, stop the function and return message.
-  if (!(f(a) < 0) && (f(b) > 0)) {
-    stop('signs of f(a) and f(b) differ')
-  } 
-  else if (!(f(a) > 0) && (f(b) < 0)) {
-    stop('signs of f(a) and f(b) differ')
-  }
-  
-  for (i in 1:n) {
-    c <- (a + b) / 2 # Calculate midpoint
-    k[i] <- c
-    # If the function equals 0 at the midpoint or the midpoint is below the desired tolerance, stop the 
-    # function and return the root.
-    if ((f(c) == 0) || ((b - a) / 2) < tol) {
-      rootApprox <- tail(k, n=1)
-      res <- list("rootApproximation" = rootApprox, 
-                  "iterations" = k, 
-                  "methodName" = "Bisection")
-      return(res)
-    }
-    
-    # If another iteration is required, 
-    # check the signs of the function at the points c and a and reassign
-    # a or b accordingly as the midpoint to be used in the next iteration.
-    ifelse(sign(f(c)) == sign(f(a)), 
-           a <- c,
-           b <- c)
-  }
-  # If the max number of iterations is reached and no root has been found, 
-  # return message and end function.
-  print("Exceeded allowed number of iterations")
-}
-
-# Fixed Point Method
-fixedPoint <- function(f, x0, alpha=1, tol=1e-02, n=1000){
-  # fixed-point algorithm to find x such that x + f(x) == x
-  # assume that fun is a function of a single variable
-  # x0 is the initial guess at the fixed point
-  
-  k <- n # Initialize for iteration results
-  
-  if (f(x0) == 0){
-    res <- list("rootApproximation" = x0, "iterations" = c(x0))
-  }
-  for (i in 1:n) {
-    x1   <- x0 + alpha * f(x0) 
-    k[i] <- x1
-    if ( abs((x1 - x0)) < tol ) {
-      rootApprox <- tail(k, n=1)
-      res <- list("rootApproximation" = rootApprox, 
-                  "iterations" = k, 
-                  "methodName" = "Fixed Point")
-      return(res)
-    }
-    x0 <- x1
-  } 
   stop("Exceeded allowed number of iterations")
 }
 
-secant <- function(f, x0, x1, tol=1e-03, n=1000){
-  k <- n # Initialize for iteration results
+fisherScoringMLE <- function(loglikFunc, data, theta0, tol=1e-3, n=1000) {
+  # Start the clock!
+  ptm <- proc.time()
   
-  for ( i in 1:n ) {
-    x2   <- x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0))
-    k[i] <- x2
-    if (abs(f(x2)) < tol) {
+  require(numDeriv) # Package for computing f'(x) and f''(x)
+  k <- matrix(0, ncol=length(theta0)) # Initialize for iteration results
+  
+  for (i in 1:n) {
+    # Score of loglikelihood 
+    score      <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)] 
+    # Fisher Information of loglikelihood
+    fisherInfo <- matrix(0, ncol=length(theta0), nrow=length(theta0))
+    for (j in 1:nrow(data)) {
+      estFunc <- function(theta, d=data[j,]) { loglikFunc(theta, d) }
+      estVec  <- genD(func=estFunc, x=theta0)$D[1:length(theta0)]
+      fisherInfo <- fisherInfo + estVec%*%t(estVec)
+    }
+    # Update theta by fisher scoring
+    theta1 <- theta0 + MASS::ginv(fisherInfo) %*% score
+    k      <- rbind(k, t(theta1)) # Store theta1
+    if (sum(abs(theta1 - theta0)) < tol) {
+      # Stop the clock
+      dt <- proc.time() - ptm
       rootApprox <- tail(k, n=1)
       res <- list("rootApproximation" = rootApprox, 
-                  "iterations" = k,
-                  "methodName" = "Secant")
+                  "iterations" = tail(k, n=i), 
+                  "time" = dt,
+                  "methodName" = "Fisher Scoring")
       return(res)
     }
-    x0 <- x1
-    x1 <- x2
+    theta0 <- theta1
   }
-  stop("Exceeded allowed number of iteractions")
+  stop("Exceeded allowed number of iterations")
+}
+
+steepestAscentMLE <- function(loglikFunc, theta0, alpha0=1., tol=1e-3, n=1000, backtracking=TRUE) {
+  # Start the clock!
+  ptm <- proc.time()
+  
+  require(numDeriv) # Package for computing f'(x) and f''(x)
+  k <- matrix(0, ncol=length(theta0)) # Initialize for iteration results
+  
+  alpha <- alpha0
+  for (i in 1:n) {
+    deriv  <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)] 
+    # Steepest ascent
+    h      <- -1 * alpha * solve(-1 * diag(length(theta0))) %*% deriv
+    # Update theta
+    theta1 <- theta0 + alpha * deriv
+    k      <- rbind(k, t(theta1)) # Store theta1
+    # Backtracking by updating alpha
+    if (backtracking && (loglikFunc(theta0) - loglikFunc(theta1) > 0.)) {
+      alpha <- alpha * 0.5
+    }
+    if (sum(abs(theta1 - theta0)) < tol) {
+      # Stop the clock
+      dt <- proc.time() - ptm
+      rootApprox <- tail(k, n=1)
+      res <- list("rootApproximation" = rootApprox, 
+                  "iterations" = tail(k, n=i), 
+                  "time" = dt,
+                  "methodName" = "Fisher Scoring")
+      return(res)
+    }
+    theta0 <- theta1
+  }
+  stop("Exceeded allowed number of iterations")
+}
+
+quasiNewtonMLE <- function(loglikFunc, theta0, alpha0=1, tol=1e-3, n=1000, backtracking=TRUE) {
+  # Start the clock!
+  ptm <- proc.time()
+  
+  k <- matrix(0, ncol=length(theta0)) # Initialize for iteration results
+  # An initial matrix M0 is chosen (usually M0 = I)
+  M <- diag(length(theta0))
+  # An initial alpha alpha0 is chosen
+  alpha <- alpha0
+  for (i in 1:n) {
+    # Update theta
+    deriv0 <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)]
+    theta1 <- theta0 - alpha * solve(M) %*% deriv0
+    deriv1 <- genD(func=loglikFunc, x=theta1)$D[1:length(theta1)]
+    # Update Matrix M
+    z <- as.vector(theta1 - theta0)
+    y <- deriv1 - deriv0
+    v <- y - M %*% z
+    c <- solve(t(v) %*% z)
+    M <- M + c[1] * (v %*% t(v))
+    # Backtracking by updating alpha
+    if (backtracking && (loglikFunc(theta0) - loglikFunc(theta1) > 0.)) {
+      alpha <- alpha * 0.5
+    }
+    # Update theta
+    k <- rbind(k, t(theta1)) # Store theta1
+    if (sum(abs(theta1 - theta0)) < tol) {
+      # Stop the clock
+      dt <- proc.time() - ptm
+      rootApprox <- tail(k, n=1)
+      res <- list("rootApproximation" = rootApprox, 
+                  "iterations" = tail(k, n=i),
+                  "time" = dt,
+                  "methodName" = "Fisher Scoring")
+      return(res)
+    }
+    theta0 <- theta1
+  }
+  stop("Exceeded allowed number of iterations")
 }
