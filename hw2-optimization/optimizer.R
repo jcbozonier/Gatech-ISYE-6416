@@ -8,12 +8,13 @@ newtonRaphsonMLE <- function(loglikFunc, theta0, tol=1e-9, n=1000) {
   k <- matrix(0, ncol=length(theta0)) # Initialize for iteration results
   
   for (i in 1:n) {
-    deriv  <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)] # First-order derivative f'(x0)
-    hess   <- hessian(func=loglikFunc, x=theta0)                  # Second-order derivative f'(x0)
-    theta1 <- theta0 - deriv %*% solve(hess)  # Calculate next value theta1 (`solve` for calculating inverse matrix)
+    deriv  <- genD(func=loglikFunc, x=theta0)$D[1:length(theta0)] 
+    hess   <- hessian(func=loglikFunc, x=theta0)                  
+    theta1 <- theta0 - deriv %*% solve(hess)  # Calculate next value theta1 
     k      <- rbind(k, theta1)                # Store theta1
 
-    # Once the difference between theta0 and theta1 becomes sufficiently small, output the results.
+    # Once the difference between theta0 and theta1 becomes sufficiently small, 
+    # output the results.
     if (sum(abs(theta1 - theta0)) < tol) {
       # Stop the clock
       dt <- proc.time() - ptm
@@ -24,13 +25,15 @@ newtonRaphsonMLE <- function(loglikFunc, theta0, tol=1e-9, n=1000) {
                   "methodName" = "Newton Raphson")
       return(res)
     }
-    # If Newton-Raphson has not yet reached convergence set theta1 as theta0 and continue
+    # If Newton-Raphson has not yet reached convergence set theta1 as theta0 
+    # and continue
     theta0 <- theta1
   }
   stop("Exceeded allowed number of iterations")
 }
 
-fisherScoringMLE <- function(loglikFunc, data, theta0, tol=1e-3, n=1000) {
+fisherScoringMLE <- function(loglikFunc, data, theta0, 
+                             tol=1e-3, n=1000) {
   # Start the clock!
   ptm <- proc.time()
   
@@ -65,7 +68,8 @@ fisherScoringMLE <- function(loglikFunc, data, theta0, tol=1e-3, n=1000) {
   stop("Exceeded allowed number of iterations")
 }
 
-steepestAscentMLE <- function(loglikFunc, theta0, alpha0=1., tol=1e-3, n=1000, backtracking=TRUE) {
+steepestAscentMLE <- function(loglikFunc, theta0, alpha0=1., 
+                              tol=1e-3, n=1000, backtracking=TRUE) {
   # Start the clock!
   ptm <- proc.time()
   
@@ -99,7 +103,8 @@ steepestAscentMLE <- function(loglikFunc, theta0, alpha0=1., tol=1e-3, n=1000, b
   stop("Exceeded allowed number of iterations")
 }
 
-quasiNewtonMLE <- function(loglikFunc, theta0, alpha0=1, tol=1e-3, n=1000, backtracking=TRUE) {
+quasiNewtonMLE <- function(loglikFunc, theta0, alpha0=1, 
+                           tol=1e-3, n=1000, backtracking=TRUE) {
   # Start the clock!
   ptm <- proc.time()
   

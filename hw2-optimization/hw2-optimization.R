@@ -158,8 +158,8 @@ loglikPoisson <- function(alpha, data=spillsData) {
 resNewtonMLE <- newtonRaphsonMLE(loglikFunc=loglikPoisson, theta0=c(3, -1))
 resFisherMLE <- fisherScoringMLE(loglikFunc=loglikPoisson, data=spillsData, theta0=c(10, -1))
 
-plot2DMLE(loglikPoisson, resNewtonMLE, "Newton Method with Backtracking")
-plot2DMLE(loglikPoisson, resFisherMLE, "Newton Method without Backtracking")
+plot2DMLE(loglikPoisson, resNewtonMLE, "Newton Method")
+plot2DMLE(loglikPoisson, resFisherMLE, "Fisher Scoring")
 
 # ------------------------------------------------------------------------------
 # d. Estimate standard errors for the MLEs of alpha_1 and alpha_2.
