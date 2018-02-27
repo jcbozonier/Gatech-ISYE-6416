@@ -168,5 +168,12 @@ Thirteen chemical measurements were carried out on each of 178 wines from three 
 
 
 
+### Question 4.1
 
+Recall the peppered moth analysis introduced in Example 4.2. In the field, it is quite difficult to distinguish the *insularia* or *typica* phenotypes due to variations in wing color and mottle. In addition to the 662 moths mentioned in the example, suppose the sample collected by the researchers actually included $n_U=578$ more moths that were known to be *insularia* or *typica* but whose exact phenotypes could not be determined.
+
+- Derive the EM algorithm for maximum likelihood estimation of $p_C$, $p_I$, and $p_I$ for this modified problem having observed data $n_C$, $n_I$, $n_T$, and $n_U$ as given above.
+- ​
+
+ 
 

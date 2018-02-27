@@ -160,6 +160,93 @@ ggplot(tsneEmbeddings, aes(x=V1, y=V2, color=cluster)) +
   scale_colour_brewer(palette = "Set2")
 
 # Simulated Annealing
-simulatedAnnealing <- function(limited ){
+simulatedAnnealing <- function(sol, data=wineData[,2:13], n=10000, step=0.1) {
   
+  # cost = group rss
+  groupRSS <- function(data, cluster, K=3) {
+    for (k in 1:K){
+      # get indices of data entries which belongs to a same cluster
+      indices <- which(cluster %in% k)
+      # calculate mean value for each of attributes in a specific cluster
+      mean    <- colMeans(data[indices,], dim=1)
+      # get differences between original entries and mean value
+      data[indices,] <- sweep(data[indices,], 2, mean)
+    }
+    return(sum(data^2))
+  }
+  
+  # get neighborhood of current solution
+  neighborhood <- function(sol){
+    # init neighbors with padding zeros
+    neighbors <- matrix(0, ncol=length(sol), nrow=length(sol)*2)
+    # search all neighbors in distance 1.
+    j <- 1
+    for (i in 1:length(sol)){
+      originVal <- sol[i]                       # original value of candidate position
+      candVals  <- setdiff(c(1,2,3), originVal) # candidate values for this position
+      for (val in candVals){
+        neighbor      <- sol      # init as original solution
+        neighbor[i]   <- val      # make change at specific position
+        neighbors[j,] <- neighbor # add this neighbor to matrix
+        j <- j + 1
+      }
+    }
+    return(neighbors)
+  }
+  
+  # Configuration
+  alpha <- 0.01        # cooling rate
+  beta  <- 2           # stage rate
+  ptm   <- proc.time() # Start the clock!
+  
+  temp  <- 1    # temperature
+  stage <- 1    # length of stage m   
+  p    <- nrow(data) # number of variables
+  cost <- groupRSS(data, sol, K=3)
+  
+  iters <- c() # init iteration results of cost
+  for (j in 1:n){
+    for (m in 1:stage){
+      # get neighborhoods for the current solution
+      neighbors       <- neighborhood(sol)
+      res             <- c() # init results for cost
+      neighborIndices <- c() # init candidates for neighbor
+      for (i in 1:nrow(neighbors)){
+        neighbor     <- neighbors[i,]
+        neighborCost <- groupRSS(data, neighbor, K=3) # calculate cost for each neighbor
+        if (neighborCost < cost){
+          res             <- c(res, neighborCost)
+          neighborIndices <- c(neighborIndices, i)
+        }
+      }
+      # stop criterion
+      if (length(res) <= 0){
+        # Stop the clock
+        dt <- proc.time() - ptm
+        result <- list("solution"   = sol,
+                       "time"       = dt,
+                       "iterations" = iters)
+        return(result)
+      }
+      # randomly pick a neighbor from candidates
+      candInd      <- sample(1:length(res), 1)
+      candNeighbor <- neighbors[neighborIndices[candInd],]
+      candCost     <- res[candInd]
+      # accept this solution by accept rate
+      acceptRate   <- min(1, exp((cost - candCost)/temp))
+      print(acceptRate)
+      if (sample(c(TRUE,FALSE), size=1, replace=TRUE, 
+                 prob=c(acceptRate,1-acceptRate))){
+        sol   <- candNeighbor
+        cost  <- candCost
+        iters <- c(iters, cost)
+      }
+    }
+    print(j)
+    # update temperature and stage
+    temp  <- temp/(1+alpha*temp)
+    stage <- stage * beta
+  }
 }
+
+initSol <- replicate(nrow(wineData), sample(c(1,2,3), 1, replace=TRUE))
