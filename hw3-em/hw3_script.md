@@ -249,9 +249,43 @@ ggplot(tsneEmbeddings, aes(x=V1, y=V2, color=cluster)) +
   scale_colour_brewer(palette = "Set2")
 ```
 
-We visualize the output of k-means by applying t-SNE to project points to a 2-D space.
+Below is the output of k-means in R.
 
+> K-means clustering with 3 clusters of sizes 51, 65, 62
+>
+> Cluster means:
+>
+> ​      x1         x2         x3         x4          x5          x6         x7
+>
+> 1  0.1643137  0.8698039  0.1862745  0.5223529 -0.07333333 -0.97568627 -1.2111765
+> 2 -0.9236923 -0.3927692 -0.4932308  0.1690769 -0.48830769 -0.07476923  0.0200000
+> 3  0.8329032 -0.3030645  0.3637097 -0.6103226  0.57774194  0.88500000  0.9732258
+>
+> ​       x8          x9        x10        x11        x12        x13
+>
+> 1  0.72372549 -0.77764706  0.9390196 -1.1627451 -1.2886275 -0.4062745
+> 2 -0.03338462  0.05830769 -0.8990769  0.4596923  0.2695385 -0.7515385
+> 3 -0.56177419  0.57822581  0.1703226  0.4717742  0.7772581  1.1214516
+>
+> Clustering vector:
+>   [1] 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3
+>  [40] 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 2 2 1 2 2 2 2 2 2 2 2 2 2 2 3 2 2 2 2
+>  [79] 2 2 2 2 2 1 2 2 2 2 2 2 2 2 2 2 2 3 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+> [118] 2 1 2 2 3 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+> [157] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+>
+> Within cluster sum of squares by cluster:
+> [1] 326.4147 558.8050 385.7191
+>  (between_SS / total_SS =  44.8 %)
+>
+> Available components:
+>
+> [1] "cluster"      "centers"      "totss"        "withinss"     "tot.withinss"
+> [6] "betweenss"    "size"         "iter"         "ifault" 
 
+We also visualize the output of k-means by applying t-SNE to project points to a 2-D space.
+
+![t-SNE for k-means](/Users/woodie/Documents/Courses/ISyE 6416 Computational Statistics (Spring 2018)/HW/ISYE-6416/hw3-em/kmeans.png)
 
 **code 5** define how to calculate cost function
 
@@ -354,15 +388,23 @@ simulatedAnnealing <- function(sol, data=wineData[,2:13], n=10000, step=0.1) {
 }
 ```
 
+Below is thee solution:
 
+> [1] 1 2 2 1 3 1 3 3 2 3 1 3 1 3 2 3 2 1 1 2 1 3 1 1 2 3 1 2 1 3 3 3 1 1 2 1 2 1 2
+>  [40] 3 3 2 2 1 3 2 1 1 2 3 1 1 2 1 3 3 2 2 2 2 2 2 3 1 1 1 1 2 2 3 1 1 3 1 2 2 2 1
+>  [79] 3 2 3 3 1 1 1 3 3 2 2 1 3 2 3 2 3 1 2 1 3 1 3 2 3 3 3 2 1 2 3 2 1 2 2 3 2 2 3
+> [118] 2 3 1 3 3 2 1 2 3 1 1 3 2 2 2 2 3 2 3 3 2 2 2 2 3 2 1 1 3 3 2 1 3 2 1 2 2 2 2
+> [157] 1 1 1 1 1 3 3 1 1 3 1 3 3 2 1 1 3 1 2 3 1 2
+
+And the visualization of Simulated Annealing by t-SNE:
+
+![sa](/Users/woodie/Desktop/sa.png)
 
 ### Question 4.1
 
 Recall the peppered moth analysis introduced in Example 4.2. In the field, it is quite difficult to distinguish the *insularia* or *typica* phenotypes due to variations in wing color and mottle. In addition to the 662 moths mentioned in the example, suppose the sample collected by the researchers actually included $n_U=578$ more moths that were known to be *insularia* or *typica* but whose exact phenotypes could not be determined.
 
 - (a) Derive the EM algorithm for maximum likelihood estimation of $p_C$, $p_I$, and $p_I$ for this modified problem having observed data $n_C$, $n_I$, $n_T$, and $n_U$ as given above.
-
-  ​
 
   The observed data are $\mathbf{x} = (n_C, n_I, n_T, n_U)$ and 
 
@@ -484,8 +526,6 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
 
 - (b) Apply the algorithm to find the MLEs. 
 
-  ​
-
   ```R
   niters <- 1000
   # raw data
@@ -526,11 +566,9 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   }
   ```
 
-  ​
+  The result is $p_C=0.03606708 $, $p_I=0.1896198$, $p_T=0.7743131$.
 
 - (c) Estimate the standard errors and pairwise correlations for $\hat{p_C}$, $\hat{p_I}$ and $\hat{p_I}$ using the SEM algorithm.
-
-  ​
 
   ```R
   # init value
@@ -607,11 +645,9 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
               (-var.hat[2,2]-var.hat[1,2])/(sd.hat[2]*sd.hat[3]))
   ```
 
-  ​
+  ![Screen Shot 2018-02-28 at 4.56.22 PM](/Users/woodie/Desktop/Screen Shot 2018-02-28 at 4.56.22 PM.png)
 
 - (d) Estimate the standard errors and pairwise correlations for $\hat{p_C}$, $\hat{p_I}$ and $\hat{p_I}$ by bootstrapping. 
-
-  ​
 
   ```R
   # init values
@@ -670,12 +706,10 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
               cor(theta[2,],theta[3,]))
   ```
 
-  ​	
+  ![Screen Shot 2018-02-28 at 4.57.41 PM](/Users/woodie/Desktop/Screen Shot 2018-02-28 at 4.57.41 PM.png)
 
 
 - (e) Implement the EM gradient algorithm for these data. Experiment with step halving to ensure ascent and with other step scalings that may speed convergence.
-
-  ​
 
   ```R
   # init values
@@ -742,11 +776,9 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   }
   ```
 
-  ​
+  ![gradient](/Users/woodie/Desktop/gradient.png)
 
 - (f) Implement Aitken accelerated EM for these data. Use step halving.
-
-  ​
 
   ```R
   # init values
@@ -834,11 +866,9 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   }
   ```
 
-  ​
+  ![aitken](/Users/woodie/Desktop/aitken.png)
 
 - (g) Implement quasi-Newton EM for these data. Compare performance with and without step halving.
-
-  ​
 
   ```R
   # init values
@@ -914,8 +944,11 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   }
   ```
 
+  ![quasi](/Users/woodie/Desktop/quasi.png)
 
 - (h) Compare the effectiveness and efficiency of the standard EM algorithm and the three variants in (e), (f), and (g). Use step halving to ensure ascent with the three variants. Base your comparison on a variety of starting points. Create a graph analogous to Figure 4.3.
+
+  Please the details in each subsection of this question.
 
 
 ### Question 4.5
