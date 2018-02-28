@@ -12,7 +12,6 @@ Implement a random starts local search algorithm for minimizing the AIC for the 
 
 - (a) Change the move strategy from steepest descent to immediate adoption of the first randomly selected downhill neighbor.
 
-   
 
   **Code 1** *Below is a snippet of code for finding $k$-Neighborhoods of a solution.*
 
@@ -98,7 +97,21 @@ Implement a random starts local search algorithm for minimizing the AIC for the 
   }
   ```
 
-  **Code 3** *Below is a snippet of code for `local searching` via `immediate adoption of the first randomly selected downhill neighbor`.*
+> **Below is the results:**
+>
+> *(Start from (1,2,3,4))*
+>
+> $solution
+> [1]  3  4 13 14  8 10 27 15  7
+>
+> $time
+>    user  system elapsed 
+>   0.435   0.017   0.483 
+>
+> $iterations
+> [1] 5486.195 5441.047 5405.131 5389.995 5384.965 5383.118 5381.728 5379.813 5378.474
+
+**Code 3** *Below is a snippet of code for `local searching` via `immediate adoption of the first randomly selected downhill neighbor`.*
 
   ```R
   localSearchForLR <- function(
@@ -154,9 +167,52 @@ Implement a random starts local search algorithm for minimizing the AIC for the 
   }
   ```
 
-  ​
+> **Below is the results:**
+>
+> *(Start from (1,2,3,4))*
+>
+> $solution
+> [1]  7 10 25  8 13 14 19  9
+>
+> $time
+>    user  system elapsed 
+>   0.331   0.003   0.358 
+>
+> $iterations
+>  [1] 5575.563 5574.578 5562.569 5550.247 5549.765 5549.075 5547.291 5531.017
+>  [9] 5529.764 5525.200 5518.767 5516.779 5515.913 5427.225 5381.288 5380.471
+> [17] 5378.790 5378.115 5377.333 5375.788 5375.674 5375.553 5375.400 5375.362
+
+
 
 - (b) Change the algorithm to employ $2$-neighborhoods, and compare the results with those of previous runs.
+
+  - **Steepest descent**
+
+    > $solution
+    > [1] 13 14  8 10 25  7 19  9
+    >
+    > $time
+    >    user  system elapsed 
+    >   4.514   0.074   4.686 
+    >
+    > $iterations
+    > [1] 5441.047 5389.995 5381.915 5378.460 5376.452 5375.708 5375.553 5375.362
+
+  - **Imediate adoption**
+
+    > $solution
+    >  [1]  3  8 13 14 10 16  4 18 12 15 17 25 11 19
+    >
+    > $time
+    >    user  system elapsed 
+    >   1.776   0.041   1.872 
+    >
+    > $iterations
+    >  [1] 5559.430 5546.047 5453.730 5447.718 5446.832 5441.939 5441.937 5441.750
+    >  [9] 5441.290 5395.620 5393.999 5392.707 5390.283 5387.542 5387.400 5383.245
+    > [17] 5383.071 5382.792 5381.700 5379.678 5379.004 5378.901 5378.856 5378.627
+    > [25] 5376.532 5375.996 5375.850
 
   ​
 
@@ -192,6 +248,8 @@ ggplot(tsneEmbeddings, aes(x=V1, y=V2, color=cluster)) +
         axis.text.y=element_blank()) +
   scale_colour_brewer(palette = "Set2")
 ```
+
+We visualize the output of k-means by applying t-SNE to project points to a 2-D space.
 
 
 
@@ -323,7 +381,7 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   \end{aligned}
   \end{equation}
   $$
-  According to the question, we are going to estimate the allele probabilities, $p_C​$, $p_I​$, and $p_T​$. The parameters for this problem is $\mathbf{p} = (p_C, p_I)​$, similarily for notational brevity we refer to $p_T​$ in what follows.
+  According to the question, we are going to estimate the allele probabilities, $p_C$, $p_I$, and $p_T$. The parameters for this problem is $\mathbf{p} = (p_C, p_I)$, similarily for notational brevity we refer to $p_T$ in what follows.
 
   The complete data log likelihood function is multinomial:
   $$
@@ -856,13 +914,179 @@ Recall the peppered moth analysis introduced in Example 4.2. In the field, it is
   }
   ```
 
-   
 
 - (h) Compare the effectiveness and efficiency of the standard EM algorithm and the three variants in (e), (f), and (g). Use step halving to ensure ascent with the three variants. Base your comparison on a variety of starting points. Create a graph analogous to Figure 4.3.
 
-   
 
 ### Question 4.5
 
-- (a) 
+- (a) Show the following algorithms can be used to calculate $\alpha(i,h)$ and $\beta(i, h)$.
+
+  ​
+  $$
+  \begin{equation}
+  \begin{aligned}
+  \alpha(0, h) 
+  &= P(O_0 = o_0, H_0 = h) \\
+  &= P(O_0 = o_0| H_0 = h) \cdot P(H_0=h) \\
+  &= \pi(h)e(h, o_0)
+  \end{aligned}
+  \end{equation}
+  $$
+
+  $$
+  \begin{equation}
+  \begin{aligned}
+  \alpha(i+1, h) 
+  &= P(\mathbf{O}_{\le i+1} = \mathbf{o}_{\le i+1}, H_{i+1} = h) \\
+  &= \sum_{h^*\in H} P(\mathbf{O}_{\le i} = \mathbf{o}_{\le i}, H=h^*) \cdot P(O_{i+1}=o_{i+1}| H_{i+1} = h) \cdot P(H_{i+1} = h|H_i=h^*)\\
+  &= \sum_{h^*\in H} \alpha(i, h^*) e(h, o_{i+1}) p(h^*, h)
+  \end{aligned}
+  \end{equation}
+  $$
+
+  $$
+  \begin{equation}
+  \begin{aligned}
+  \beta(i-1, h) 
+  &= P(\mathbf{O}_{\gt i-1} = \mathbf{o}_{\gt i-1}| H_{i-1} = h) \\
+  &= \sum_{h^*\in H} P(\mathbf{O}_{\gt i} = \mathbf{o}_{\gt i}| H=h^*) \cdot P(O_{i}=o_{i}| H_{i} = h) \cdot P(H_{i} = h|H_i=h^*)\\
+  &= \sum_{h^*\in H} \beta(i, h^*) e(h^*, o_{i}) p(h, h^*)
+  \end{aligned}
+  \end{equation}
+  $$
+
+
+
+
+- (b) Prove that these random variables have the following expectations.
+  $$
+  \begin{equation}
+  \begin{aligned}
+  E_Q(N(h)|\mathbf{O}=\mathbf{o})
+  &= P(H_0=h|\mathbf{O}=\mathbf{o}, \theta) \\
+  &= \frac{P(\mathbf{O}_{>0}=\mathbf{o}, O_0=o_0|H_o = h, \theta) \cdot P(H_o= h|Q)}{P(\mathbf{O}=\mathbf{o}|\theta)} \\
+  &= \frac{\beta(0,h) e(h,o_0) \pi(h)}{P(\mathbf{O}=\mathbf{o}|\theta)} \\
+  &= \frac{\alpha(0,h) \beta(0,h)}{P(\mathbf{O}=\mathbf{o}|\theta)}
+  \end{aligned}
+  \end{equation}
+  $$
+
+  $$
+  \begin{equation}
+  \begin{aligned}
+  E_Q(N(h, h^*)|\mathbf{O}=\mathbf{o})
+  &= E_Q(\sum_{i=0}^{n-1} \mathbb{I}(H_i=h, H_{i+1}=h^*)|\mathbf{O} = \mathbf{o} ) \\
+  &= \sum_{i=0}^{n-1} E_Q(\mathbb{I}(H_i=h, H_{i+1}=h^*)|\mathbf{O} = \mathbf{o} ) \\
+  &= \sum_{i=0}^{n-1} \frac{P(H_i=h,H_{i+1}=h^*, \mathbf{O} = \mathbf{o} | \theta)}{P(\mathbf{O}= \mathbf{o}|\theta)} \\
+  &= \sum_{i=0}^{n-1} \frac{P(H_i=h,H_{i+1}=h^*, \mathbf{O}_{\le i} = \mathbf{o}_{\le i}, O_{i+1} = o_{i+1}, \mathbf{O}_{\gt i+1} = \mathbf{o}_{\gt i+1} | \theta)}{P(\mathbf{O}= \mathbf{o}|\theta)} \\
+  &= \sum_{i=0}^{n-1} \frac{\alpha(i,h) e(h^*, o_{i+1}) \beta(i+1, h^*) P(h,h^*))}{P(\mathbf{O}=\mathbf{o}|\theta)}
+  \end{aligned}
+  \end{equation}
+  $$
+
+  $$
+  \begin{equation}
+  \begin{aligned}
+  E_Q(N(h, o)|\mathbf{O}=\mathbf{o}) 
+  &= E_Q(\sum_{i=0}^{n-1} \mathbb{I} (H_i=h, O_i=o)|\mathbf{O}=\mathbf{o})\\
+  &= \sum_{i \in O_i=o} E_Q(\mathbb{I} (H_i=h)|\mathbf{O}=\mathbf{o})\\
+  &= \sum_{i \in O_i=o} \frac{P(H_i=h, \mathbf{O}_{\le i} = \mathbf{o}_{\le i}, \mathbf{O}_{\gt i} = \mathbf{o}_{\gt i}| \theta)} {P(\mathbf{O} = \mathbf{o}|\theta)} \\
+  &= \sum_{i \in O_i=o} \frac{\sum_{h \in H} P(\mathbf{O}_{\gt i} = \mathbf{o}_{\gt i}| H_i=h, \mathbf{O}_{\le i} = \mathbf{o}_{\le i}, \theta) \alpha(i, h)} {P(\mathbf{O} = \mathbf{o}|\theta)} \\
+  &= \sum_{i \in O_i=o} \frac{\alpha(i,h) \beta(i,h)}{P(\mathbf{O} = \mathbf{o}|\theta)}
+  \end{aligned}
+  \end{equation}
+  $$
+
+
+
+
+
+- (c) Prove that the Baum-Welch algorithm is an EM algorithm. 
+
+  Take one component of $\pi$ as an example.
+  $$
+  \begin{equation}
+  \begin{aligned}
+  max_{\pi} \sum E(N(h) | \theta^{(t)}, \mathbf{O}) log\ \pi(h)
+  \end{aligned}
+  \end{equation}
+  $$
+
+  $$
+  s.t. \sum_{h \in H^*} \pi(h) = 1
+  $$
+
+  We apply Lagrangian Multiplier. 
+  $$
+  Lang(\pi, \lambda) = \sum_{h \in H} E(N(h)|Q^{(t)}, \mathbf{O}) log\ \pi(h) + \lambda(\sum_{h \in H} \pi(h) -1)
+  $$
+  And solve $0=\frac{\partial}{\partial \pi(h)} Lang(\pi, \lambda)$, we can get
+  $$
+  \pi(h) = \frac{E(N(h)|Q^{(t)}, \mathbf{O})}{\sum_{h \in H} E(N(h) | Q^{(t)}, \mathbf{O})}
+  $$
+
+  $$
+  \lambda = - \sum_{h \in H} E(N(h)|Q^{(t)}, \mathbf{O})
+  $$
+
+- (d) Use the Baum-Welch algorithm to estimate $p$, $d$, and $s$.
+
+  ​
+
+  ```R
+  require(HMM)
+  hmm1 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.25,0.75,0.75,0.25),2),
+          matrix(c(0.25,0.5,0.75,0.5),2))
+  O = read.table('coin.dat', header = TRUE)$outcome
+  observation = O
+  observation[O == 1] = 'Head'
+  observation[O == 2] = 'tail'
+  B1 = exp(backward(hmm1,observation))
+  A1 =exp(forward(hmm1, observation))
+  baumWelch(hmm1, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+  hmm2 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.5,0.5,0.5,0.5),2),
+                 matrix(c(0.5,0.5,0.5,0.5),2))
+  baumWelch(hmm2, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+  hmm3 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.1,0.9,0.9,0.1),2),
+                 matrix(c(0.1,0.1,0.9,0.9),2))
+  baumWelch(hmm3, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+  hmm4 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(1/4,2/3,3/4,1/3),2),
+                 matrix(c(1/4,2/3,3/4,1/3),2))
+  baumWelch(hmm3, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+  ```
+
+  Below is the results:
+
+  > $hmm$States
+  > [1] "dim"   "penny"
+  >
+  > $hmm$Symbols
+  > [1] "tail" "Head"
+  >
+  > $hmm$startProbs
+  >   dim penny 
+  >   0.5   0.5 
+  >
+  > $hmm$transProbs
+  >
+  > from    dim penny
+  >   dim   0.1   0.9
+  >   penny 0.9   0.1
+  >
+  > $hmm$emissionProbs
+  >
+  > states  tail Head
+  >   dim   0.45 0.55
+  >   penny 0.45 0.55
+  >
+  >
+  > $difference
+  > [1] 7.000000e-01 1.353259e-14
+
+
+
 

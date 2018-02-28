@@ -707,3 +707,30 @@ for(i in 1:itr){
   segments(prob.values[1,i],prob.values[2,i],prob.values[1,i+1],
            prob.values[2,i+1],lty=2)
 }
+
+# Question 4.5 
+# HMM & Baum-Welch algorithm
+
+require(HMM)
+hmm1 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.25,0.75,0.75,0.25),2),
+               matrix(c(0.25,0.5,0.75,0.5),2))
+coinDataPath = paste(rootPath, "datasets/coin.dat", sep="/")
+O = read.table(coinDataPath, header = TRUE)$outcome
+observation = O
+observation[O == 2] = 'Head'
+observation[O == 1] = 'tail'
+B1 = exp(backward(hmm1,observation))
+A1 =exp(forward(hmm1, observation))
+baumWelch(hmm1, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+hmm2 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.5,0.5,0.5,0.5),2),
+               matrix(c(0.5,0.5,0.5,0.5),2))
+baumWelch(hmm2, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+hmm3 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(0.1,0.9,0.9,0.1),2),
+               matrix(c(0.1,0.1,0.9,0.9),2))
+baumWelch(hmm3, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
+
+hmm4 = initHMM(c('dim',"penny"), c("tail","Head"), c(0.5,0.5), matrix(c(1/4,2/3,3/4,1/3),2),
+               matrix(c(1/4,2/3,3/4,1/3),2))
+baumWelch(hmm3, observation, maxIterations=100, delta=1E-9, pseudoCount = 0)
