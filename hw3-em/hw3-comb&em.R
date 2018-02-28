@@ -250,3 +250,56 @@ simulatedAnnealing <- function(sol, data=wineData[,2:13], n=10000, step=0.1) {
 }
 
 initSol <- replicate(nrow(wineData), sample(c(1,2,3), 1, replace=TRUE))
+
+# Question 4.1
+# Recall the peppered moth analysis introduced in Example 4.2. In the 
+# field, it is quite difficult to distinguish the insularia or typica 
+# phenotypes due to variations in wing color and mottle. In addition to 
+# the 662 moths mentioned in the example, suppose the sample collected 
+# by the researchers actually included n_U=578 more moths that were known 
+# to be insularia or typica but whose exact phenotypes could not be determined.
+
+# (a) Derive the EM algorithm for maximum likelihood estimation of p_C, 
+#     p_I, and p_I for this modified problem having observed data n_C, 
+#     n_I, n_T, and n_U as given above.
+
+# (b) Apply the algorithm to find the MLEs.
+
+niters <- 1000
+# raw data
+nC <- 85
+nI <- 196
+nT <- 341
+nU <- 578
+n  <- nC + nI + nT + nU
+# init value of p
+pC <- 0.1
+pI <- 0.1
+pT <- 0.8
+
+lastpC <- 0
+lastpI <- 0
+lastpT <- 1
+for (i in 1:niters){
+  # E (Estimation) step
+  nCC <- (nC*pC^2) / (pC^2 + 2*pC*pI + 2*pC*pT)
+  nCI <- (2*nC*pC*pI) / (pC^2 + 2*pC*pI + 2*pC*pT)
+  nCT <- (2*nC*pC*pT) / (pC^2 + 2*pC*pI + 2*pC*pT)
+  nII <- (nI*pI^2) / (pI^2 + 2*pI*pT) + (nU*pI^2) / (pI^2 + 2*pI*pT + pT^2)
+  nIT <- (2*nI*pI*pT) / (pI^2 + 2*pI*pT) + (2*nU*pI*pT) / (pI^2 + 2*pI*pT + pT^2)
+  nTT <- nT + (nU*pT^2) / (pI^2 + 2*pI*pT + pT^2)
+  # M (Maximization) step
+  pC <- (2*nCC + nCI + nCT) / (2*n)
+  pI <- (2*nII + nIT + nCI) / (2*n)
+  pT <- (2*nTT + nCT + nIT) / (2*n)
+  # stop criterion
+  if (((lastpC - pC)^2 + (lastpI - pI)^2 + (lastpT - pT)^2) < 10e-5){
+    break
+  } 
+  lastpC <- pC
+  lastpI <- pI
+  lastpT <- pT
+}
+
+# (c) Estimate the standard errors and pairwise correlations for \hat{p_C}, \hat{p_I} and \hat{p_I} using the SEM algorithm.
+
