@@ -133,7 +133,6 @@ z1 <- y1/x
 mean(z1)
 var(z1)
 
-# exp(mu + sigma^2/2)
 # since E[Y/X | X] = E[exp(9+log(X))*exp(Normal(0, 1)/ X] = exp(9+log(X))*exp(1/2)/X  
 
 x  <- exp(rnorm(n, 0, 1))
@@ -141,5 +140,5 @@ y2 <- exp(9+3*log(x))*exp(1/2)/x
 y2 <- exp(9)*x^2*exp(1/2)
 z2 <- y2
 mean(z2)
-
+var(z2)
 # var(z2) < var(z1)
