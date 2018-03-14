@@ -114,41 +114,34 @@ The estimated fair price is `0.9440792` and its variance is `7.143709e-06`, whic
 
 ```R
 estimatedMu1 <- NULL
-for(j in 1:m){
-  #calculate MC estimate of A and theta
-  A <- NULL
-  for(i in 1:n/2){
-    ST    <- NULL
-    ST[1] <- S0
-    for(k in 2:T){
-      ST[k] <- ST[k-1]*exp(((r-(sigma^2)/2)/365) +
-                             sigma*rnorm(1)/sqrt(365))
-    }
-    A[i] <- exp(-r*T/365)*max(c(0, mean(ST) - K))
-  }
-  estimatedMu1[j] <- mean(A)
-}
-
 estimatedMu2 <- NULL
 for(j in 1:m){
-  #calculate MC estimate of A and theta
-  A <- NULL
+  # calculate MC estimate of A and theta
+  A1 <- NULL
+  A2 <- NULL
   for(i in 1:n/2){
-    ST    <- NULL
-    ST[1] <- S0
+    ST1    <- NULL
+    ST2    <- NULL 
+    ST1[1] <- S0
+    ST2[1] <- S0
     for(k in 2:T){
-      ST[k] <- ST[k-1]*exp(((r-(sigma^2)/2)/365) +
-                             sigma*rnorm(1)/sqrt(365))
+      sample <- rnorm(1)
+      ST1[k] <- ST1[k-1]*exp(((r-(sigma^2)/2)/365) +
+                               sigma*sample/sqrt(365))
+      ST2[k] <- ST2[k-1]*exp(((r-(sigma^2)/2)/365) +
+                               sigma*(-sample)/sqrt(365))
     }
-    A[i] <- exp(-r*T/365)*max(c(0, mean(ST) - K))
+    A1[i] <- exp(-r*T/365)*max(c(0, mean(ST1) - K))
+    A2[i] <- exp(-r*T/365)*max(c(0, mean(ST2) - K))
   }
-  estimatedMu2[j] <- mean(A)
+  estimatedMu1[j] <- mean(A1)
+  estimatedMu2[j] <- mean(A2)
 }
 
 estimatedMuA <- (estimatedMu1 + estimatedMu2)/2
 ```
 
-The estimated fair price is `0.8684389` and its variance is `0.003725535`, which is slightly better than the result in (b), but worse than (c).
+The estimated fair price is `0.8709188` and its variance is `0.002547244`, which is slightly better than the result in (b), but worse than (c).
 
 **e**. Compare the sampling distributions of the estimators in (b), (c), (d).
 
@@ -173,6 +166,7 @@ y2 <- exp(9+3*log(x))*exp(1/2)/x
 y2 <- exp(9)*x^2*exp(1/2)
 z2 <- y2
 mean(z2)
+var(z2)
 
 # var(z2) < var(z1)
 ```

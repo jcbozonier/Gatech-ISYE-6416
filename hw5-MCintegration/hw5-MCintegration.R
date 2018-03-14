@@ -88,35 +88,28 @@ estimatedMuCV <- estimatedMuMC - 1 * (estimatedTheta-theta)
 #    described in part (b)
 
 estimatedMu1 <- NULL
-for(j in 1:m){
-  #calculate MC estimate of A and theta
-  A <- NULL
-  for(i in 1:n/2){
-    ST    <- NULL
-    ST[1] <- S0
-    for(k in 2:T){
-      ST[k] <- ST[k-1]*exp(((r-(sigma^2)/2)/365) +
-                             sigma*rnorm(1)/sqrt(365))
-    }
-    A[i] <- exp(-r*T/365)*max(c(0, mean(ST) - K))
-  }
-  estimatedMu1[j] <- mean(A)
-}
-
 estimatedMu2 <- NULL
 for(j in 1:m){
   #calculate MC estimate of A and theta
-  A <- NULL
+  A1 <- NULL
+  A2 <- NULL
   for(i in 1:n/2){
-    ST    <- NULL
-    ST[1] <- S0
+    ST1    <- NULL
+    ST2    <- NULL 
+    ST1[1] <- S0
+    ST2[1] <- S0
     for(k in 2:T){
-      ST[k] <- ST[k-1]*exp(((r-(sigma^2)/2)/365) +
-                             sigma*rnorm(1)/sqrt(365))
+      sample <- rnorm(1)
+      ST1[k] <- ST1[k-1]*exp(((r-(sigma^2)/2)/365) +
+                               sigma*sample/sqrt(365))
+      ST2[k] <- ST2[k-1]*exp(((r-(sigma^2)/2)/365) +
+                               sigma*(-sample)/sqrt(365))
     }
-    A[i] <- exp(-r*T/365)*max(c(0, mean(ST) - K))
+    A1[i] <- exp(-r*T/365)*max(c(0, mean(ST1) - K))
+    A2[i] <- exp(-r*T/365)*max(c(0, mean(ST2) - K))
   }
-  estimatedMu2[j] <- mean(A)
+  estimatedMu1[j] <- mean(A1)
+  estimatedMu2[j] <- mean(A2)
 }
 
 estimatedMuA <- (estimatedMu1 + estimatedMu2)/2
